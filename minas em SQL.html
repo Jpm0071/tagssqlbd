@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Campo Minado SQL - Nível Fácil</title>
+    <style>
+        :root {
+            --grid-gap: 8px;
+            --background-color: #2c3e50; 
+            --cell-color-initial: #6c757d;   
+            --cell-color-named-sql: #2ecc71; /* Verde para indicar nível fácil */
+            --cell-color-revealed: #ffffff; 
+            --text-color-light: #ffffff;
+            --text-color-dark: #000000;
+            --border-color: #dee2e6;
+            --border-radius: 8px;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            background-color: var(--background-color);
+            margin: 0;
+            padding: 20px;
+            box-sizing: border-box;
+        }
+        
+        h1 {
+            color: #f8f9fa;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+
+        .grid-container {
+            display: grid;
+            width: 100%;
+            max-width: 700px; 
+            grid-template-columns: repeat(5, 1fr); /* Grade 5x5 */
+            gap: var(--grid-gap);
+        }
+
+        .cell {
+            aspect-ratio: 1 / 1; 
+            width: 100%;
+            border-radius: var(--border-radius);
+            cursor: pointer;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            font-weight: bold;
+            padding: 8px;
+            box-sizing: border-box;
+            transition: transform 0.2s, background-color 0.3s;
+            user-select: none;
+            background-color: var(--cell-color-initial);
+            color: var(--text-color-light);
+            font-size: clamp(16px, 4vw, 24px);
+        }
+
+        .cell:not(.revealed):hover {
+            transform: scale(1.05);
+        }
+
+        .cell.named {
+            background-color: var(--cell-color-named-sql);
+            font-size: clamp(10px, 2vw, 13px);
+            word-break: break-word;
+        }
+        
+        .cell.revealed {
+            background-color: var(--cell-color-revealed);
+            color: var(--text-color-dark);
+            border: 1px solid var(--border-color);
+            font-weight: normal;
+            cursor: default;
+            font-size: clamp(9px, 1.8vw, 11px);
+            line-height: 1.2;
+        }
+
+        @media (max-width: 600px) {
+            .grid-container {
+                grid-template-columns: repeat(4, 1fr);
+            }
+        }
+        @media (max-width: 400px) {
+            .grid-container {
+                grid-template-columns: repeat(3, 1fr);
+            }
+        }
+    </style>
+</head>
+<body>
+
+<h1>Campo Minado: Banco de Dados Iniciante</h1>
+<div class="grid-container" id="minefield"></div>
+
+<script>
+    const minefield = document.getElementById('minefield');
+    
+    // Lista com os 25 conceitos mais fáceis e diretos
+    const items = [
+        { name: 'BANCO DE DADOS', answer: 'Local organizado para guardar informações.' },
+        { name: 'TABELA', answer: 'Estrutura com linhas e colunas.' },
+        { name: 'LINHA (RECON)', answer: 'Um registro único dentro da tabela.' },
+        { name: 'COLUNA (CAMPO)', answer: 'Define o tipo de dado guardado.' },
+        { name: 'DADO', answer: 'Um valor solto, como um nome ou número.' },
+        { name: 'SELECT', answer: 'Comando usado para buscar dados.' },
+        { name: 'INSERT', answer: 'Comando para adicionar novos dados.' },
+        { name: 'UPDATE', answer: 'Comando para alterar dados existentes.' },
+        { name: 'DELETE', answer: 'Comando para apagar dados.' },
+        { name: 'WHERE', answer: 'Serve para filtrar uma busca.' },
+        { name: 'PRIMARY KEY', answer: 'O código identificador único (ID).' },
+        { name: 'TEXTO (VARCHAR)', answer: 'Tipo de dado para letras e frases.' },
+        { name: 'NÚMERO (INT)', answer: 'Tipo de dado para números inteiros.' },
+        { name: 'DATA (DATE)', answer: 'Tipo de dado para calendário.' },
+        { name: 'SQL', answer: 'Linguagem para conversar com o banco.' },
+        { name: 'USUÁRIO', answer: 'Quem tem acesso para mexer no banco.' },
+        { name: 'SENHA', answer: 'Garante a segurança do acesso.' },
+        { name: 'NULO (NULL)', answer: 'Representa um campo vazio.' },
+        { name: 'ORDER BY', answer: 'Coloca o resultado em ordem.' },
+        { name: 'ABC (ASC)', answer: 'Ordenação de forma crescente.' },
+        { name: 'ZYX (DESC)', answer: 'Ordenação de forma decrescente.' },
+        { name: 'COUNT', answer: 'Serve para contar as linhas.' },
+        { name: 'SUM', answer: 'Serve para somar valores numéricos.' },
+        { name: 'FILTRO', answer: 'Esconde o que você não quer ver.' },
+        { name: 'BUSCA', answer: 'Ação de procurar algo na tabela.' }
+    ];
+
+    function shuffle(array) {
+        for (let i = array.length - 1; i > 0; i--) {
+            const j = Math.floor(Math.random() * (i + 1));
+            [array[i], array[j]] = [array[j], array[i]];
+        }
+    }
+
+    shuffle(items);
+
+    items.forEach((item, index) => {
+        const cell = document.createElement('div');
+        cell.classList.add('cell');
+        cell.textContent = index + 1;
+        cell.dataset.name = item.name;
+        cell.dataset.answer = item.answer;
+
+        cell.addEventListener('click', function() {
+            if (this.classList.contains('revealed')) return;
+            
+            if (this.classList.contains('named')) {
+                this.classList.remove('named');
+                this.classList.add('revealed');
+                this.textContent = this.dataset.answer;
+                return;
+            }
+            
+            this.classList.add('named');
+            this.textContent = this.dataset.name;
+        });
+
+        minefield.appendChild(cell);
+    });
+</script>
+
+</body>
+</html>
